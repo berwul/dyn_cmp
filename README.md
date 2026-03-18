@@ -8,14 +8,13 @@ This is the project repository for the paper entitled:
 
 "Safe corridor motion planning for dynamic pick and place applications"
 
-For proprietary reasons, the repository does not include the robot used in the experiments. The training of a neural signed configuration distance function (nSCDF) is not included in this repo. We instead provide a pre-learned network. To understand the learning process of the nSCDF
-, we refer to the paper:
+For proprietary reasons, the repository does not include the robot used in the experiments of the paper. The training of a neural signed configuration distance function (nSCDF) is not included in this repo. We instead provide a pre-learned network. To understand the learning process of the nSCDF we refer to the paper:
 
 https://arxiv.org/abs/2502.16205
 
 
 # Run demo example
-The following example runs our motion planner on a generic manipulator. The example includes a pre-trained nSCDF, with spheres as obstacle representation.
+The following example runs our motion planner on a generic manipulator. The example includes a pre-trained nSCDF with spheres as obstacle representation.
 
 ## Requirements:
 - Python 3
