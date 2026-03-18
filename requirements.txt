@@ -1,0 +1,10 @@
+control
+scipy
+cvxpy
+numpy
+numba
+trimesh
+pyglet<2
+numpy<2
+python-fcl
+pin
