@@ -28,15 +28,25 @@ pip install -r requirements.txt
 ```bash
 python 1_run_demo.py
 ```
-3) Visualize the simulation
+3) Run animation of the simulation in world space
 ```bash
-python 2_viz_sim.py
+python 2_viz_sim_wspace.py
 ```
-The visualization illustrates the following:
+The animation shows the following:
 - Static obstacles (gray spheres)
 - Moving obstacle (red sphere)
 - Manipulator collision geometries (gray tubes)
-- Optimized performance path (green curve)
-- Setpoint along performance path (green sphere)
-- MPC trajectories (blue curves)
+- Optimized performance path and MPC performance trajectory  (blue curves)
+- Setpoint along performance path (blue sphere)
+- Optimized safety path and MPC safety trajectory  (green curves)
+- Setpoint along safety path (blue sphere)
 
+4) Run animation of the simulation in configuration space
+```bash
+python 3_viz_sim_cspace.py
+```
+The animation shows the following:
+- Centerline of nominal corridor  (red curve)
+- Safety corridor (green spheres)
+- Optimized performance path and MPC performance trajectory  (blue curves)
+- Optimized safety path and MPC safety trajectory  (green curves)

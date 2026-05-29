@@ -43,7 +43,7 @@ def run_planner(man, planner, q_s, q_g, dt, percp_fq, human=None, max_iters=2000
             human.set_collision_geometries(t)
             new_measurement = (cnt % percp_fq) == 0
             if new_measurement:
-                planner.observe(human.get_dims_at_time(t))
+                planner.observe(human, cnt, dt)
         u = planner.plan(x)
         # --------------
         if human is not None:

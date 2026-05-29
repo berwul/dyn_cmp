@@ -55,6 +55,13 @@ class nSCDF:
     def set_margin(self, margin):
         self.margin = margin
 
+    def sdf_batch(self, qs, dims):
+        m, k = dims.shape
+        n = qs.shape[0]
+        X = np.c_[dims[None].repeat(n, axis=0).reshape(-1, k), qs.repeat(m, axis=0)].T
+        sd = sdf_compute(X, *self.Ws, *self.bs).reshape(n, m).min(axis=1)
+        return sd - self.margin
+
     def sdf(self, q):
         m, k = self.dims.shape
         c = q.size

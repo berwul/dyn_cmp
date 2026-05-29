@@ -38,7 +38,7 @@ class StaticObstacles:
 
 class DynamicObstacle:
 
-    def __init__(self, v=0.2, r_body=0.075):
+    def __init__(self, v=0.1, r_body=0.07):
         self.v = v
         self.p_s = np.r_[0.4, 0, 0.05]
         self.p_e = np.r_[0.4, 0, 0.3]
@@ -66,7 +66,7 @@ class DynamicObstacle:
         return dims_t[None]
 
 
-def load_dynamic_scenario(dyn_o_speed=0.2):
+def load_dynamic_scenario(dyn_o_speed=0.05):
     s_obs = StaticObstacles()
     d_obs = DynamicObstacle(v=dyn_o_speed)
     return s_obs, d_obs

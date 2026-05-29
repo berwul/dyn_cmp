@@ -1,7 +1,21 @@
+# Copyright (c) 2026, ABB Schweiz AG
+# All rights reserved.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 import pathlib
 import pickle
 
-import pyglet
 import trimesh
 import numpy as np
 
@@ -20,17 +34,16 @@ with (p_c / "results" / f"{fname}.pkl").open("rb") as fp:
 
 data_sim = data["sim"]
 data_simulation_setup = data["sim_setup"]
-data_static = data.get("static", {})
+data_static = data.get("static_data", {})
 cnt = 0
 
-n_stop = len(data_sim) - 1
 dt = data_simulation_setup["dt"]
 link_ee = "link_6"
 
 def callback(s):
     global cnt
     data_i = data_sim[cnt]
-    scene.delete_geometry(["X", "X_stop", "x_g_v", "path_track"])
+    scene.delete_geometry(["X", "X_stop", "x_g_v", "x_g_em_v", "path_track"])
     if "X" in data_i:
         X = data_i["X"]
         P = X[:, :3]
@@ -44,7 +57,14 @@ def callback(s):
         q_g_v, _ = np.split(data_i["x_g_v"], 2)
         fk, = man.get_link_fk(q_g_v, links=[link_ee])
         p_g = fk[:3, -1]
-        render_sphere(scene, p_g, r=0.01, color=[0, 255, 0], geom_name="x_g_v")
+        render_sphere(scene, p_g, r=0.01, color=[0, 0, 255], geom_name="x_g_v")
+
+    if "x_g_em_v" in data_i:
+        q_g_em_v, _ = np.split(data_i["x_g_em_v"], 2)
+        fk, = man.get_link_fk(q_g_em_v, links=[link_ee])
+        p_g = fk[:3, -1]
+        render_sphere(scene, p_g, r=0.01, color=[0, 255, 0], geom_name="x_g_em_v")
+
     if "X_stop" in data_i:
         X = data_i["X_stop"]
         P = X[:, :3]
@@ -53,7 +73,7 @@ def callback(s):
             fk, = man.get_link_fk(p, links=[link_ee])
             ps.append(fk[:3, -1])
         ps = np.vstack(ps)
-        render_path(s, ps, color=[0, 0, 255], geom_name="X_stop")
+        render_path(s, ps, color=[0, 255, 0], geom_name="X_stop")
     if "path_track" in data_i:
         path_track = data_i["path_track"]
         ps = []
@@ -61,7 +81,7 @@ def callback(s):
             fk, = man.get_link_fk(p, links=[link_ee])
             ps.append(fk[:3, -1])
         ps = np.vstack(ps)
-        render_path(s, ps, color=[0, 255, 0], geom_name="path_track")
+        render_path(s, ps, color=[0, 0, 255], geom_name="path_track")
     t = cnt * dt
     q, v = np.split(data_i["x"], 2)
     man.update_scene(scene, q, s_data)
@@ -70,8 +90,6 @@ def callback(s):
     s.graph.update(
         frame_to="dobs", frame_from="world", matrix=trimesh.transformations.translation_matrix(p_t)
     )
-    if cnt == n_stop:
-        pyglet.app.exit()
     cnt = (cnt + 1) % len(data_sim)
 
 
@@ -79,13 +97,21 @@ dim, = d_obs.get_dims_at_time(cnt * 1e-2)
 *_, r = dim
 d_obs_mesh = trimesh.creation.icosphere(radius=r, face_colors=[255, 0, 0])
 scene = trimesh.Scene()
-
 scene.add_geometry(trimesh.creation.axis())
 s_data = man.add_to_scene(scene, geom_name_suffix="t")
 for *c, r in s_obs.dims:
     scene.add_geometry(trimesh.creation.icosphere(radius=r), transform=trimesh.transformations.translation_matrix(c))
 scene.add_geometry(d_obs_mesh, geom_name="dobs")
 scene.add_geometry(trimesh.creation.axis())
+
+if "path_track_static" in data_static:
+    path_centers = data_static["path_track_static"]
+    ps = []
+    for p in path_centers:
+        fk, = man.get_link_fk(p, links=[link_ee])
+        ps.append(fk[:3, -1])
+    ps = np.vstack(ps)
+    render_path(scene, ps, color=[0, 255, 0], geom_name="path_track_static")
 
 T_camera = np.array([
     [0.07600603, -0.53513592, 0.84133978, 1.27296495],
